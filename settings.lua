@@ -4,13 +4,17 @@ data:extend({
     name = "teleporters-planet-lock",
     setting_type = "startup",
     default_value = true,
-    order = "a"
   },
   {
     type = "bool-setting",
     name = "teleporters-require-aquilo",
     setting_type = "startup",
     default_value = false,
-    order = "b"
+  },
+  {
+    type = "bool-setting",
+    name = "teleporters-same-surface-only",
+    setting_type = "startup",
+    default_value = false,
   }
 })

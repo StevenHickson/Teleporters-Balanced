@@ -216,10 +216,15 @@ local make_teleporter_gui = function(player, source)
 
   local sorted = {}
   local i = 1
+  local same_surface_only = settings.startup["teleporters-same-surface-only"].value
+  local player_surface_index = player.surface.index
+
   for name, teleporter in pairs(network) do
     if teleporter.teleporter.valid then
-      sorted[i] = { name = name, teleporter = teleporter, unit_number = teleporter.teleporter.unit_number }
-      i = i + 1
+      if not same_surface_only or teleporter.teleporter.surface.index == player_surface_index then
+        sorted[i] = { name = name, teleporter = teleporter, unit_number = teleporter.teleporter.unit_number }
+        i = i + 1
+      end
     else
       clear_teleporter_data(teleporter)
     end
@@ -449,14 +454,14 @@ local gui_actions =
       if current_surface_name ~= dest_surface_name then
         local source_tech_name = "teleport-to-" .. current_surface_name
         if player.force.technologies[source_tech_name] and not player.force.technologies[source_tech_name].researched then
-          player.print({ "teleport-locked-from", { "technology-name." .. source_tech_name } })
+          player.print({ "teleport-locked-from", player.force.technologies[source_tech_name].localised_name })
           unlink_teleporter(player)
           return
         end
 
         local dest_tech_name = "teleport-to-" .. dest_surface_name
         if player.force.technologies[dest_tech_name] and not player.force.technologies[dest_tech_name].researched then
-          player.print({ "teleport-locked-to", { "technology-name." .. dest_tech_name } })
+          player.print({ "teleport-locked-to", player.force.technologies[dest_tech_name].localised_name })
           unlink_teleporter(player)
           return
         end

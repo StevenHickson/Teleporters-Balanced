@@ -2,7 +2,7 @@ local path = util.path("data/entities/teleporters/")
 local teleporter = util.copy(data.raw["land-mine"]["land-mine"])
 local names = require("shared")
 local name = names.entities.teleporter
-local localised_name = {name}
+local localised_name = { name }
 
 teleporter.name = name
 teleporter.localised_name = localised_name
@@ -33,7 +33,7 @@ teleporter.trigger_force = "all"
 teleporter.order = name
 teleporter.picture_safe =
 {
-  filename = path.."hr-teleporter-closed.png",
+  filename = path .. "hr-teleporter-closed.png",
   priority = "medium",
   width = 160,
   height = 160,
@@ -41,7 +41,7 @@ teleporter.picture_safe =
 }
 teleporter.picture_set =
 {
-  filename = path.."hr-teleporter-open.png",
+  filename = path .. "hr-teleporter-open.png",
   priority = "medium",
   width = 160,
   height = 160,
@@ -49,13 +49,13 @@ teleporter.picture_set =
 }
 teleporter.picture_set_enemy =
 {
-  filename = path.."hr-teleporter-open.png",
+  filename = path .. "hr-teleporter-open.png",
   priority = "medium",
   width = 160,
   height = 160,
   scale = 0.5,
 }
-teleporter.minable = {result = name, mining_time = 3}
+teleporter.minable = { result = name, mining_time = 3 }
 teleporter.flags =
 {
   --"not-blueprintable",
@@ -64,9 +64,9 @@ teleporter.flags =
   "player-creation",
   "not-upgradable"
 }
-teleporter.collision_box = {{-1, -1},{1, 1}}
-teleporter.selection_box = {{-1, -1},{1, 1}}
-teleporter.map_color = {r = 0.5, g = 1, b = 1}
+teleporter.collision_box = { { -1, -1 }, { 1, 1 } }
+teleporter.selection_box = { { -1, -1 }, { 1, 1 } }
+teleporter.map_color = { r = 0.5, g = 1, b = 1 }
 
 
 local sticker =
@@ -85,7 +85,7 @@ local teleporter_item = util.copy(data.raw.item["land-mine"])
 teleporter_item.name = name
 teleporter_item.localised_name = localised_name
 teleporter_item.place_result = name
-teleporter_item.icon = path.."teleporter-icon.png"
+teleporter_item.icon = path .. "teleporter-icon.png"
 teleporter_item.icon_size = 64
 teleporter_item.icon_mipmaps = 0
 teleporter_item.subgroup = "circuit-network"
@@ -95,10 +95,10 @@ local fire = require("data/tf_util/tf_fire_util")
 
 local teleporter_explosion = util.copy(data.raw.explosion.explosion)
 teleporter_explosion.name = "teleporter-explosion"
-teleporter_explosion.animations = fire.create_fire_pictures({scale = 1, animation_speed = 0.3})
+teleporter_explosion.animations = fire.create_fire_pictures({ scale = 1, animation_speed = 0.3 })
 teleporter_explosion.sound =
 {
-  filename = path.."teleporter-explosion.ogg",
+  filename = path .. "teleporter-explosion.ogg",
   volume = 0.45
 }
 
@@ -113,12 +113,12 @@ local recipe = {
   enabled = false,
   ingredients =
   {
-    {type = "item", name = "steel-plate", amount = 45},
-    {type = "item", name = "advanced-circuit", amount = 20},
-    {type = "item", name = "battery", amount = 25},
+    { type = "item", name = "steel-plate",      amount = 45 },
+    { type = "item", name = "advanced-circuit", amount = 20 },
+    { type = "item", name = "battery",          amount = 25 },
   },
   energy_required = 5,
-  results = {{type = "item", name = name, amount = 1}}
+  results = { { type = "item", name = name, amount = 1 } }
 }
 
 local technology =
@@ -128,7 +128,7 @@ local technology =
   localised_name = localised_name,
   localised_description = "",
   icon_size = 256,
-  icon = path.."teleporter-technology.png",
+  icon = path .. "teleporter-technology.png",
   effects =
   {
     {
@@ -140,17 +140,21 @@ local technology =
   {
     count = 500,
     ingredients = {
-      {"automation-science-pack", 1},
-      {"logistic-science-pack", 1},
-      {"chemical-science-pack", 1},
+      { "automation-science-pack", 1 },
+      { "logistic-science-pack",   1 },
+      { "chemical-science-pack",   1 },
     },
     time = 30
   },
-  prerequisites = {"advanced-circuit", "battery"},
+  prerequisites = { "advanced-circuit", "battery" },
   order = "y-a"
 }
 
-local hotkey_name = require"shared".hotkeys.focus_search
+if settings.startup["teleporters-require-aquilo"].value then
+  table.insert(technology.unit.ingredients, { "cryogenic-science-pack", 1 })
+end
+
+local hotkey_name = require "shared".hotkeys.focus_search
 local hotkey =
 {
   type = "custom-input",
