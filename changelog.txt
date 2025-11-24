@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 2025-11-24
+  Changes:
+    - Enabled dynamic teleporter technology for each planet. Added option to lock teleporters by this tech.
+---------------------------------------------------------------------------------------------------
 Version: 2.0.0
 Date: 2024-10-27
   Changes:
