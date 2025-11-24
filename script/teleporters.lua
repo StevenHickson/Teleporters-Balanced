@@ -27,9 +27,9 @@ local print = function(string)
 end
 
 local create_flash = function(surface, position)
-  surface.create_entity{name = "teleporter-explosion", position = position}
+  surface.create_entity { name = "teleporter-explosion", position = position }
   for k = 1, 3 do
-    surface.create_entity{name = "teleporter-explosion-no-sound", position = position}
+    surface.create_entity { name = "teleporter-explosion-no-sound", position = position }
   end
 end
 
@@ -58,7 +58,6 @@ local get_teleporter_frame = function(player)
 end
 
 local make_rename_frame = function(player, caption)
-
   local teleporter_frame = get_teleporter_frame(player)
   if teleporter_frame then
     teleporter_frame.ignored_by_interaction = true
@@ -71,20 +70,21 @@ local make_rename_frame = function(player, caption)
   local param = teleporters[caption]
   local text = param.flying_text
   local gui = player.gui.screen
-  local frame = gui.add{type = "frame", caption = {"rename-teleporter", caption}, direction = "horizontal"}
+  local frame = gui.add { type = "frame", caption = { "rename-teleporter", caption }, direction = "horizontal" }
   frame.auto_center = true
   player.opened = frame
   script_data.rename_frames[player.index] = frame
 
-  local textfield = frame.add{type = "textfield", text = caption, icon_selector = true}
+  local textfield = frame.add { type = "textfield", text = caption, icon_selector = true }
   textfield.style.horizontally_stretchable = true
   textfield.focus()
   textfield.select_all()
-  util.register_gui(script_data.button_actions, textfield, {type = "confirm_rename_textfield", textfield = textfield, flying_text = text, tag = param.tag})
+  util.register_gui(script_data.button_actions, textfield,
+    { type = "confirm_rename_textfield", textfield = textfield, flying_text = text, tag = param.tag })
 
-  local confirm = frame.add{type = "sprite-button", sprite = "utility/enter", style = "tool_button", tooltip = {"gui-train-rename.perform-change"}}
-  util.register_gui(script_data.button_actions, confirm, {type = "confirm_rename_button", textfield = textfield, flying_text = text, tag = param.tag})
-
+  local confirm = frame.add { type = "sprite-button", sprite = "utility/enter", style = "tool_button", tooltip = { "gui-train-rename.perform-change" } }
+  util.register_gui(script_data.button_actions, confirm,
+    { type = "confirm_rename_button", textfield = textfield, flying_text = text, tag = param.tag })
 end
 
 local get_force_color = function(force)
@@ -92,7 +92,7 @@ local get_force_color = function(force)
   if player and player.valid then
     return player.chat_color
   end
-  return {r = 1, b = 1, g = 1}
+  return { r = 1, b = 1, g = 1 }
 end
 
 local add_recent = function(player, teleporter)
@@ -105,7 +105,7 @@ local add_recent = function(player, teleporter)
   if table_size(recent) >= 9 then
     local min = math.huge
     local index
-    for k, tick in pairs (recent) do
+    for k, tick in pairs(recent) do
       if tick < min then
         min = tick
         index = k
@@ -139,13 +139,20 @@ local clear_teleporter_data = function(teleporter_data)
 end
 
 
+local get_network = function(force)
+  local name = force.name
+  local network = script_data.networks[name]
+  if network then return network end
+  script_data.networks[name] = {}
+  return script_data.networks[name]
+end
+
 local get_sort_function = function()
   return
-  function(t, a, b) return a < b end
+      function(t, a, b) return a < b end
 end
 
 local make_teleporter_gui = function(player, source)
-
   local location
   local teleporter_frame = get_teleporter_frame(player)
   if teleporter_frame then
@@ -164,11 +171,14 @@ local make_teleporter_gui = function(player, source)
   end
 
   local force = source.force
-  local network = script_data.networks[force.name]
-  if not network then return end
+  local network = get_network(force)
+  if not network then
+    unlink_teleporter(player)
+    return
+  end
 
   local gui = player.gui.screen
-  local frame = gui.add{type = "frame", direction = "vertical", ignored_by_interaction = false}
+  local frame = gui.add { type = "frame", direction = "vertical", ignored_by_interaction = false }
   if location then
     frame.location = location
   else
@@ -178,25 +188,25 @@ local make_teleporter_gui = function(player, source)
   player.opened = frame
   script_data.teleporter_frames[player.index] = frame
   frame.ignored_by_interaction = false
-  local title_flow = frame.add{type = "flow", direction = "horizontal"}
+  local title_flow = frame.add { type = "flow", direction = "horizontal" }
   title_flow.style.vertical_align = "center"
-  local title = title_flow.add{type = "label", style = "frame_title"}
+  local title = title_flow.add { type = "label", style = "frame_title" }
   title.drag_target = frame
-  local rename_button = title_flow.add{type = "sprite-button", sprite = "utility/rename_icon", style = "mini_button_aligned_to_text_vertically_when_centered", visible = source.force == player.force}
-  local pusher = title_flow.add{type = "empty-widget", direction = "horizontal", style = "draggable_space_header"}
+  local rename_button = title_flow.add { type = "sprite-button", sprite = "utility/rename_icon", style = "mini_button_aligned_to_text_vertically_when_centered", visible = source.force == player.force }
+  local pusher = title_flow.add { type = "empty-widget", direction = "horizontal", style = "draggable_space_header" }
   pusher.style.horizontally_stretchable = true
   pusher.style.vertically_stretchable = true
   pusher.drag_target = frame
-  local search_box = title_flow.add{type = "textfield", visible = false}
-  local search_button = title_flow.add{type = "sprite-button", style = "frame_action_button", sprite = "utility/search", tooltip = {"gui.search-with-focus", {"search"}}}
-  util.register_gui(script_data.button_actions, search_button, {type = "search_button", box = search_box})
+  local search_box = title_flow.add { type = "textfield", visible = false }
+  local search_button = title_flow.add { type = "sprite-button", style = "frame_action_button", sprite = "utility/search", tooltip = { "gui.search-with-focus", { "search" } } }
+  util.register_gui(script_data.button_actions, search_button, { type = "search_button", box = search_box })
   script_data.search_boxes[player.index] = search_box
-  local inner = frame.add{type = "frame", style = "inside_deep_frame"}
-  local scroll = inner.add{type = "scroll-pane", direction = "vertical"}
+  local inner = frame.add { type = "frame", style = "inside_deep_frame" }
+  local scroll = inner.add { type = "scroll-pane", direction = "vertical" }
   scroll.style.maximal_height = (player.display_resolution.height / player.display_scale) * 0.8
   local column_count = ((player.display_resolution.width / player.display_scale) * 0.6) / preview_size
-  local holding_table = scroll.add{type = "table", column_count = column_count}
-  util.register_gui(script_data.button_actions, search_box, {type = "search_text_changed", parent = holding_table})
+  local holding_table = scroll.add { type = "table", column_count = column_count }
+  util.register_gui(script_data.button_actions, search_box, { type = "search_text_changed", parent = holding_table })
   holding_table.style.horizontal_spacing = 2
   holding_table.style.vertical_spacing = 2
   local any = false
@@ -206,9 +216,9 @@ local make_teleporter_gui = function(player, source)
 
   local sorted = {}
   local i = 1
-  for name, teleporter in pairs (network) do
+  for name, teleporter in pairs(network) do
     if teleporter.teleporter.valid then
-      sorted[i] = {name = name, teleporter = teleporter, unit_number = teleporter.teleporter.unit_number}
+      sorted[i] = { name = name, teleporter = teleporter, unit_number = teleporter.teleporter.unit_number }
       i = i + 1
     else
       clear_teleporter_data(teleporter)
@@ -232,7 +242,7 @@ local make_teleporter_gui = function(player, source)
   end)
 
   local sorted_network = {}
-  for k, sorted_script_data in pairs (sorted) do
+  for k, sorted_script_data in pairs(sorted) do
     sorted_network[sorted_script_data.name] = sorted_script_data.teleporter
   end
 
@@ -243,28 +253,28 @@ local make_teleporter_gui = function(player, source)
       clear_teleporter_data(teleporter)
     elseif teleporter_entity == source then
       title.caption = name
-      util.register_gui(script_data.button_actions, rename_button, {type = "rename_button", caption = name})
+      util.register_gui(script_data.button_actions, rename_button, { type = "rename_button", caption = name })
     else
       local position = teleporter_entity.position
-      local area = {{position.x - preview_size / 2, position.y - preview_size / 2}, {position.x + preview_size / 2, position.y + preview_size / 2}}
+      local area = { { position.x - preview_size / 2, position.y - preview_size / 2 }, { position.x + preview_size / 2, position.y + preview_size / 2 } }
       chart(teleporter_entity.surface, area)
-      local button = holding_table.add{type = "button", name = "_"..name}
+      local button = holding_table.add { type = "button", name = "_" .. name }
       button.style.height = preview_size + 32 + 8
       button.style.width = preview_size + 8
       button.style.left_padding = 0
       button.style.right_padding = 0
-      local inner_flow = button.add{type = "flow", direction = "vertical", ignored_by_interaction = true}
+      local inner_flow = button.add { type = "flow", direction = "vertical", ignored_by_interaction = true }
       inner_flow.style.vertically_stretchable = true
       inner_flow.style.horizontally_stretchable = true
       inner_flow.style.horizontal_align = "center"
       local map = inner_flow.add
-      {
-        type = "minimap",
-        surface_index = teleporter_entity.surface.index,
-        zoom = 1,
-        force = teleporter_entity.force.name,
-        position = position,
-      }
+          {
+            type = "minimap",
+            surface_index = teleporter_entity.surface.index,
+            zoom = 1,
+            force = teleporter_entity.force.name,
+            position = position,
+          }
       map.ignored_by_interaction = true
       map.style.height = preview_size
       map.style.width = preview_size
@@ -272,26 +282,26 @@ local make_teleporter_gui = function(player, source)
       map.style.vertically_stretchable = true
       local caption = name
       if recent[teleporter_entity.unit_number] then
-        caption = "[img=quantity-time] "..name
+        caption = "[img=quantity-time] " .. name
       end
-      local label = inner_flow.add{type = "label", caption = caption}
+      local label = inner_flow.add { type = "label", caption = caption }
       label.style.horizontally_stretchable = true
       label.style.font = "default-dialog-button"
       label.style.font_color = {}
       label.style.horizontally_stretchable = true
       label.style.maximal_width = preview_size
-      util.register_gui(script_data.button_actions, button, {type = "teleport_button", param = teleporter})
+      util.register_gui(script_data.button_actions, button, { type = "teleport_button", param = teleporter })
       any = true
     end
   end
   if not any then
-    holding_table.add{type = "label", caption = {"no-teleporters"}}
+    holding_table.add { type = "label", caption = { "no-teleporters" } }
   end
 end
 
 local refresh_teleporter_frames = function()
   local players = game.players
-  for player_index, source in pairs (script_data.player_linked_teleporter) do
+  for player_index, source in pairs(script_data.player_linked_teleporter) do
     local player = players[player_index]
     local frame = get_teleporter_frame(player)
     if frame then
@@ -325,32 +335,31 @@ local resync_teleporter = function(name, teleporter_data)
   clear_teleporter_data(teleporter_data)
 
   local flying_text = rendering.draw_text
-  {
-    text = name,
-    surface = surface,
-    alignment = "center",
-    target = {entity = teleporter, offset = {0, -2}},
-    forces = {force},
-    only_in_alt_mode = true,
-    use_rich_text = true,
-    color = color
-  }
+      {
+        text = name,
+        surface = surface,
+        alignment = "center",
+        target = { entity = teleporter, offset = { 0, -2 } },
+        forces = { force },
+        only_in_alt_mode = true,
+        use_rich_text = true,
+        color = color
+      }
   teleporter_data.flying_text = flying_text
 
   script_data.adding_tag = true
   local map_tag = force.add_chart_tag(surface,
-  {
-    icon = {type = "item", name = teleporter_name},
-    position = teleporter.position,
-    text = name
-  })
+    {
+      icon = { type = "item", name = teleporter_name },
+      position = teleporter.position,
+      text = name
+    })
   script_data.adding_tag = false
 
   if map_tag then
     teleporter_data.tag = map_tag
     script_data.tag_map[map_tag.tag_number] = teleporter_data
   end
-
 end
 
 local is_name_available = function(force, name)
@@ -393,7 +402,7 @@ local gui_actions =
     local new_name = param.textfield.text
 
     if new_name ~= old_name and not is_name_available(player.force, new_name) then
-      player.print({"name-already-taken"})
+      player.print({ "name-already-taken" })
       return
     end
 
@@ -413,7 +422,7 @@ local gui_actions =
     local new_name = param.textfield.text
 
     if new_name ~= old_name and not is_name_available(player.force, new_name) then
-      player.print({"name-already-taken"})
+      player.print({ "name-already-taken" })
       return
     end
 
@@ -433,6 +442,26 @@ local gui_actions =
     local destination_position = destination.position
     local player = game.players[event.player_index]
     if not (player and player.valid) then return end
+
+    if settings.startup["teleporters-planet-lock"].value then
+      local current_surface_name = player.surface.name
+      local dest_surface_name = destination_surface.name
+      if current_surface_name ~= dest_surface_name then
+        local source_tech_name = "teleport-to-" .. current_surface_name
+        if player.force.technologies[source_tech_name] and not player.force.technologies[source_tech_name].researched then
+          player.print({ "teleport-locked-from", { "technology-name." .. source_tech_name } })
+          unlink_teleporter(player)
+          return
+        end
+
+        local dest_tech_name = "teleport-to-" .. dest_surface_name
+        if player.force.technologies[dest_tech_name] and not player.force.technologies[dest_tech_name].researched then
+          player.print({ "teleport-locked-to", { "technology-name." .. dest_tech_name } })
+          unlink_teleporter(player)
+          return
+        end
+      end
+    end
     create_flash(destination_surface, destination_position)
     create_flash(player.surface, player.position)
     --This teleport doesn't check collisions. If someone complains, make it check 'can_place' and if false find a positions etc....
@@ -445,7 +474,7 @@ local gui_actions =
     local box = event.element
     local search = box.text
     local parent = param.parent
-    for k, child in pairs (parent.children) do
+    for k, child in pairs(parent.children) do
       child.visible = child.name:lower():find(search:lower(), 1, true) ~= nil
     end
   end,
@@ -455,13 +484,7 @@ local gui_actions =
   end
 }
 
-local get_network = function(force)
-  local name = force.name
-  local network = script_data.networks[name]
-  if network then return network end
-  script_data.networks[name] = {}
-  return script_data.networks[name]
-end
+
 
 local on_built_entity = function(event)
   local entity = event.created_entity or event.entity or event.destination
@@ -469,9 +492,9 @@ local on_built_entity = function(event)
   if entity.name ~= teleporter_name then return end
   local surface = entity.surface
   local force = entity.force
-  local name = "Teleporter ".. entity.unit_number
+  local name = "Teleporter " .. entity.unit_number
   local network = get_network(force)
-  local teleporter_data = {teleporter = entity, flying_text = text, tag = tag}
+  local teleporter_data = { teleporter = entity, flying_text = text, tag = tag }
   network[name] = teleporter_data
   script_data.teleporter_map[entity.unit_number] = teleporter_data
   resync_teleporter(name, teleporter_data)
@@ -566,7 +589,6 @@ local on_gui_closed = function(event)
     print("Frame unlinked")
     return
   end
-
 end
 
 local on_player_removed = function(event)
@@ -576,8 +598,8 @@ local on_player_removed = function(event)
 end
 
 local resync_all_teleporters = function()
-  for force, network in pairs (script_data.networks) do
-    for name, teleporter_data in pairs (network) do
+  for force, network in pairs(script_data.networks) do
+    for name, teleporter_data in pairs(network) do
       resync_teleporter(name, teleporter_data)
     end
   end
@@ -598,15 +620,15 @@ local on_chart_tag_modified = function(event)
   local new_name = tag.text
   if tag.icon and tag.icon.name ~= teleporter_name then
     --They're trying to modify the icon! Straight to JAIL!
-    if player and player.valid then player.print({"cant-change-icon"}) end
-    tag.icon = {type = "item", name = teleporter_name}
+    if player and player.valid then player.print({ "cant-change-icon" }) end
+    tag.icon = { type = "item", name = teleporter_name }
   end
   if new_name == old_name then
     return
   end
   if new_name == "" or not is_name_available(force, new_name) then
     if player and player.valid then
-      player.print({"name-already-taken"})
+      player.print({ "name-already-taken" })
     end
     tag.text = old_name
     return
@@ -637,7 +659,7 @@ local on_chart_tag_added = function(event)
   if icon and icon.type == "item" and icon.name == teleporter_name then
     --Trying to add a fake teleporter tag! JAIL!
     local player = event.player_index and game.get_player(event.player_index)
-    if player and player.valid then player.print({"cant-add-tag"}) end
+    if player and player.valid then player.print({ "cant-add-tag" }) end
     tag.destroy()
     return
   end
@@ -719,10 +741,9 @@ local on_rocket_launched = function(event)
   settings.water = rando(3)
   settings.starting_area = rando(3)
 
-  local new_surface = game.create_surface("teleporter_surface"..game.tick..settings.seed, settings)
+  local new_surface = game.create_surface("teleporter_surface" .. game.tick .. settings.seed, settings)
 
-  new_surface.create_entity{name = teleporter_name, position = {0, 0}, force = rocket.force, raise_built = true}
-
+  new_surface.create_entity { name = teleporter_name, position = { 0, 0 }, force = rocket.force, raise_built = true }
 end
 
 local teleporters = {}

@@ -122,7 +122,7 @@ util.base_player = function()
 end
 
 util.path = function(str)
-  return "__Teleporters__/" .. str
+  return "__Teleporters-Balanced__/" .. str
 end
 
 util.empty_sound = function()
