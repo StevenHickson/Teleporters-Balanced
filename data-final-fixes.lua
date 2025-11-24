@@ -77,7 +77,7 @@ local function find_child_science_pack(parent_tech_name)
                         if results then
                             for _, result in pairs(results) do
                                 local item_name = result.name or result[1]
-                                if item_name and (item_name:find("science-pack") or data.raw.tool[item_name]) then
+                                if item_name and (item_name:find("science-pack", 1, true) or data.raw.tool[item_name]) then
                                     return item_name
                                 end
                             end
