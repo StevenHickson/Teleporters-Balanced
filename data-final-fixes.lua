@@ -250,7 +250,12 @@ for name, planet in pairs(data.raw["planet"]) do
         -- Dynamic discovery
         local unlock_tech = find_planet_unlock_tech(name)
         if unlock_tech then
-            science = find_child_science_pack(unlock_tech.name)
+            if name == "rubia" then
+                -- Rubia is special, it has temp science packs, we should probably set this to defended delivery drops.
+                science = "biorecycling-science-pack"
+            else
+                science = find_child_science_pack(unlock_tech.name)
+            end
         end
     end
     -- TODO fix Frozeta and Cubium teleportation. Cubium maybe needs cube mastery 4?
