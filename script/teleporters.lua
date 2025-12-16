@@ -475,6 +475,29 @@ local gui_actions =
       local trash_inv = player.get_inventory(defines.inventory.character_trash)
       local cursor_stack = player.cursor_stack
 
+      if restriction == "inventory" then
+        if not main_inv.is_empty() or (cursor_stack and cursor_stack.valid_for_read) or (trash_inv and not trash_inv.is_empty()) then
+          player.print({ "message.teleport-inventory-not-empty" })
+          return
+        end
+      elseif restriction == "inventory-ammo" then
+        if not main_inv.is_empty() or not ammo_inv.is_empty() or (cursor_stack and cursor_stack.valid_for_read) or (trash_inv and not trash_inv.is_empty()) then
+          player.print({ "message.teleport-inventory-ammo-not-empty" })
+          return
+        end
+      end
+    end
+
+    local current_surface_name = player.surface.name
+    local dest_surface_name = destination_surface.name
+
+    if current_surface_name ~= dest_surface_name then
+      local restriction = settings.global["teleporters-inventory-restriction-interplanetary"].value
+
+      local main_inv = player.get_main_inventory()
+      local ammo_inv = player.get_inventory(defines.inventory.character_ammo)
+      local trash_inv = player.get_inventory(defines.inventory.character_trash)
+
       local function check_weight(inv)
         if not inv then return end
         for i = 1, #inv do
@@ -500,7 +523,7 @@ local gui_actions =
         end
       end
 
-      if restriction == "weight" or restriction == "weight-no-science" then
+      if settings.global["teleporters-weight-restriction"].value then
         local heavy_item = check_weight(main_inv) or check_weight(ammo_inv) or check_weight(trash_inv)
         if cursor_stack and cursor_stack.valid_for_read then
           local weight = cursor_stack.prototype.weight
@@ -511,15 +534,15 @@ local gui_actions =
           player.print({ "message.teleport-inventory-weight", prototypes.item[heavy_item].localised_name })
           return
         end
+      end
 
-        if restriction == "weight-no-science" then
-          local has_science = check_science(main_inv) or check_science(ammo_inv) or check_science(trash_inv)
-          if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name:find("science-pack", 1, true) then has_science = true end
+      if restriction == "science" then
+        local has_science = check_science(main_inv) or check_science(ammo_inv) or check_science(trash_inv)
+        if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name:find("science-pack", 1, true) then has_science = true end
 
-          if has_science then
-            player.print({ "message.teleport-science-not-allowed" })
-            return
-          end
+        if has_science then
+          player.print({ "message.teleport-science-not-allowed" })
+          return
         end
       elseif restriction == "inventory" then
         if not main_inv.is_empty() or (cursor_stack and cursor_stack.valid_for_read) or (trash_inv and not trash_inv.is_empty()) then

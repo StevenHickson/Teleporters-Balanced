@@ -22,6 +22,19 @@ data:extend({
     name = "teleporters-inventory-restriction",
     setting_type = "runtime-global",
     default_value = "none",
-    allowed_values = { "none", "weight", "weight-no-science", "inventory", "inventory-ammo" }
+    allowed_values = { "none", "inventory", "inventory-ammo" }
+  },
+  {
+    type = "string-setting",
+    name = "teleporters-inventory-restriction-interplanetary",
+    setting_type = "runtime-global",
+    default_value = "inventory-ammo",
+    allowed_values = { "none", "science", "inventory", "inventory-ammo" }
+  },
+  {
+    type = "bool-setting",
+    name = "teleporters-weight-restriction",
+    setting_type = "runtime-global",
+    default_value = true,
   }
 })
